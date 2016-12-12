@@ -1,0 +1,51 @@
+nsd:nsd-catalog:
+    nsd:nsd:
+    -   nsd:constituent-vnfd:
+        -   nsd:member-vnf-index: '1'
+            nsd:start-by-default: 'true'
+            nsd:vnfd-id-ref: id_pts_vnf
+        -   nsd:member-vnf-index: '2'
+            nsd:start-by-default: 'true'
+            nsd:vnfd-id-ref: id_tse_vnf
+        -   nsd:member-vnf-index: '3'
+            nsd:start-by-default: 'true'
+            nsd:vnfd-id-ref: server-vnfd
+        -   nsd:member-vnf-index: '4'
+            nsd:start-by-default: 'true'
+            nsd:vnfd-id-ref: server-vnfd
+        nsd:id: 27b66d07-203a-4a84-88f2-e44192caa405
+        nsd:initial-config-primitive:
+        -   nsd:name: set license server
+            nsd:parameter:
+            -   nsd:name: license_server
+            nsd:seq: '1'
+            nsd:user-defined-script: set_license_server.py
+        nsd:name: nsd-21
+        nsd:vld:
+        -   nsd:id: cc4cf
+            nsd:name: sub
+            nsd:vnfd-connection-point-ref:
+            -   nsd:member-vnf-index-ref: '2'
+                nsd:vnfd-connection-point-ref: subscriber-cp
+                nsd:vnfd-id-ref: id_tse_vnf
+            -   nsd:member-vnf-index-ref: '4'
+                nsd:vnfd-connection-point-ref: cp1
+                nsd:vnfd-id-ref: server-vnfd
+        -   nsd:id: 7b8b0
+            nsd:name: int
+            nsd:vnfd-connection-point-ref:
+            -   nsd:member-vnf-index-ref: '2'
+                nsd:vnfd-connection-point-ref: internet-cp
+                nsd:vnfd-id-ref: id_tse_vnf
+            -   nsd:member-vnf-index-ref: '3'
+                nsd:vnfd-connection-point-ref: cp1
+                nsd:vnfd-id-ref: server-vnfd
+        -   nsd:id: 6c88f
+            nsd:name: service
+            nsd:vnfd-connection-point-ref:
+            -   nsd:member-vnf-index-ref: '2'
+                nsd:vnfd-connection-point-ref: service-cp
+                nsd:vnfd-id-ref: id_tse_vnf
+            -   nsd:member-vnf-index-ref: '1'
+                nsd:vnfd-connection-point-ref: service-cp
+                nsd:vnfd-id-ref: id_pts_vnf
