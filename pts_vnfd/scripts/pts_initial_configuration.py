@@ -11,26 +11,47 @@ from svapisession import session
 import yaml
 import re
 
-def configure_license_servers(yaml_cfg,logger):
-    # walk through vnf records 
+def get_vnfr(yaml_cfg,name):
     for index, vnfr in yaml_cfg['vnfr'].items():
-        logger.debug("VNFR {}: {}".format(index, vnfr))
+        if name in vnfr['name']:
+            return vnfr
+    return None
 
-        if re.search('Policy|Traffic',vnfr['name']):
+def configure(yaml_cfg,logger):
+    pts_name = yaml_cfg['vnfr_name']
+    pts_vnfr = get_vnfr(yaml_cfg,pts_name)
+    tse_vnfr = get_vnfr(yaml_cfg,'Traffic Steering')
 
-            if not yaml_cfg.has_key('parameter'):
-                logger.info("No parameters passed in")
-                continue
+    if pts_vnfr is None:
+        logger.info("NO vnfr record found")
+        sys.exit(1)
 
-            if not yaml_cfg['parameter'].has_key('license_server'):
-                logger.info("No license server provided")
-                continue
+    logger.debug("PTS YAML: {}".format(pts_vnfr))
 
-            logger.info("Setting license server on {}:{} license server = {}".format(vnfr['name'],vnfr['mgmt_ip_address'], yaml_cfg['parameter']['license_server']))
-            sess=session.Session(vnfr['mgmt_ip_address'])
-            cli = client.Client(sess)
-            cli.configure_license_server( yaml_cfg['parameter']['license_server'] )
+    pts_sess=session.Session(pts_vnfr['mgmt_ip_address'])
+    tse_sess=session.Session(tse_vnfr['mgmt_ip_address'])
 
+    if not pts_sess.wait_for_api_ready():
+        logger.info("PTS API did not become ready")
+        sys.exit(1)
+
+    if not tse_sess.wait_for_api_ready():
+        logger.info("TSE API did not become ready")
+        sys.exit(1)
+
+    pts_cli = client.Client(pts_sess)
+    tse_cli = client.Client(tse_sess)
+    
+    # get the pts mac address
+    mac=pts_cli.get_interface_mac('1-3')
+
+    #need a name without spaces
+    cli_pts_name = '_'.join(pts_name.split())
+
+    tse_sess.add_cmd('add config traffic-steering service-locator mac-nsh-locator ' +  cli_pts_name + ' mac ' + mac )
+    tse_sess.add_cmd('add config traffic-steering service-function ' + cli_pts_name + ' transport mac-nsh locator ' + cli_pts_name )
+    tse_sess.add_cmd('add config traffic-steering service-group-member ' + cli_pts_name + ' service-group pts-group' )
+    tse_sess.commit()
 
 def main(argv=sys.argv[1:]):
     try:
@@ -40,12 +61,15 @@ def main(argv=sys.argv[1:]):
         parser.add_argument("-r", "--rundir", dest='run_dir', action='store')
         args = parser.parse_args()
 
+        yaml_str = args.yaml_cfg_file.read()
+        yaml_cfg = yaml.load(yaml_str)
+
         run_dir = args.run_dir
         if not run_dir:
             run_dir = os.path.join(os.environ['RIFT_INSTALL'], "var/run/rift")
             if not os.path.exists(run_dir):
                 os.makedirs(run_dir)
-        log_file = "{}/set_license_server-{}.log".format(run_dir, time.strftime("%Y%m%d%H%M%S"))
+        log_file = "{}/initial-configuration-{}-{}.log".format(run_dir, yaml_cfg['vnfr_name'], time.strftime("%Y%m%d%H%M%S"))
         logging.basicConfig(filename=log_file, level=logging.DEBUG)
         logger = logging.getLogger()
 
@@ -70,11 +94,8 @@ def main(argv=sys.argv[1:]):
         raise e
 
     try:
-        yaml_str = args.yaml_cfg_file.read()
-        # logger.debug("Input YAML file:\n{}".format(yaml_str))
-        yaml_cfg = yaml.load(yaml_str)
         logger.debug("Input YAML: {}".format(yaml_cfg))
-        configure_license_servers(yaml_cfg,logger)
+        configure(yaml_cfg,logger)
 
     except Exception as e:
         logger.exception(e)

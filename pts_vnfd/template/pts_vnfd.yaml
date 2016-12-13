@@ -28,3 +28,17 @@ vnfd:vnfd-catalog:
                 vnfd:storage-gb: '5'
                 vnfd:vcpu-count: '3'
         vnfd:version: '1.0'
+        vnfd:vnf-configuration:
+            vnfd:config-attributes:
+                vnfd:config-delay: '0'
+                vnfd:config-priority: '5'
+            vnfd:config-template: "\n#!/bin/bash\n\n"
+            vnfd:initial-config-primitive:
+            -   vnfd:name: initial-config-primitive-1
+                vnfd:parameter:
+                -   vnfd:name: rate
+                    vnfd:value: '5'
+                vnfd:seq: '1'
+                vnfd:user-defined-script: pts_initial_configuration.py
+            vnfd:script:
+                vnfd:script-type: bash
