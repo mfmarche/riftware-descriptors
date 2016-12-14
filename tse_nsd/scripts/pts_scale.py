@@ -11,25 +11,29 @@ from svapisession import session
 import yaml
 import re
 
+
 def get_vnfr(yaml_cfg,name):
-    for index, vnfr in yaml_cfg['vnfr'].items():
-        if name in vnfr['name']:
-            return vnfr
+    for item in yaml_cfg:
+      if name in item['name']:
+          return item
     return None
 
 def configure(yaml_cfg,logger):
-    pts_name = yaml_cfg['vnfr_name']
-    pts_vnfr = get_vnfr(yaml_cfg,pts_name)
-    tse_vnfr = get_vnfr(yaml_cfg,'Traffic Steering')
+    pts_name = yaml_cfg['vnfrs_in_group'][0]['name']
+    pts_mgmt = yaml_cfg['vnfrs_in_group'][0]['rw_mgmt_ip']
 
-    if pts_vnfr is None:
-        logger.info("NO vnfr record found")
+    logger.debug("vnf name = {} mgmt {}".format(pts_name, pts_mgmt))
+
+    tse_vnfr = get_vnfr(yaml_cfg['vnfrs_others'],'Traffic Steering')
+
+    if tse_vnfr is None:
+        logger.info("NO vnfr record found for TSE")
         sys.exit(1)
 
-    logger.debug("PTS YAML: {}".format(pts_vnfr))
+    logger.debug("TSE YAML: {}".format(tse_vnfr))
 
-    pts_sess=session.Session(pts_vnfr['mgmt_ip_address'])
-    tse_sess=session.Session(tse_vnfr['mgmt_ip_address'])
+    pts_sess=session.Session(pts_mgmt)
+    tse_sess=session.Session(tse_vnfr['rw_mgmt_ip'])
 
     if not pts_sess.wait_for_api_ready():
         logger.info("PTS API did not become ready")
@@ -69,7 +73,7 @@ def main(argv=sys.argv[1:]):
             run_dir = os.path.join(os.environ['RIFT_INSTALL'], "var/run/rift")
             if not os.path.exists(run_dir):
                 os.makedirs(run_dir)
-        log_file = "{}/initial-configuration-{}-{}.log".format(run_dir, yaml_cfg['vnfr_name'], time.strftime("%Y%m%d%H%M%S"))
+        log_file = "{}/pts-scale-{}.log".format(run_dir, time.strftime("%Y%m%d%H%M%S"))
         logging.basicConfig(filename=log_file, level=logging.DEBUG)
         logger = logging.getLogger()
 
@@ -95,8 +99,7 @@ def main(argv=sys.argv[1:]):
 
     try:
         logger.debug("Input YAML: {}".format(yaml_cfg))
-        #this is now done in the scale out trigger
-        #configure(yaml_cfg,logger)
+        configure(yaml_cfg,logger)
 
     except Exception as e:
         logger.exception(e)

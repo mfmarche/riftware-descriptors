@@ -47,6 +47,9 @@ def configure(yaml_cfg,logger):
     sess.add_cmd('add config traffic-steering service-path-hop 1 path bg1upstream forwarding-table default destination 1-4 destination-type terminator')
     sess.add_cmd('add config traffic-steering classifier interface 1-3 path bg1upstream')
     sess.add_cmd('add config traffic-steering classifier interface 1-4 path bg1downstream')
+    sess.add_cmd('set config interface 1-3 enabled true')
+    sess.add_cmd('set config interface 1-4 enabled true')
+    sess.add_cmd('set config interface 1-5 enabled true')
 
     if not sess.wait_for_api_ready():
         logger.info("API did not become ready")
