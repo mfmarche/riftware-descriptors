@@ -6,8 +6,8 @@ import os
 import subprocess
 import sys
 import time
-from svapiclient  import client 
-from svapisession import session 
+from pysvapi.elementdriver import sshdriver
+from pysvapi.svapiclient  import client 
 import yaml
 import re
 
@@ -28,8 +28,8 @@ def configure(yaml_cfg,logger):
 
     logger.debug("PTS YAML: {}".format(pts_vnfr))
 
-    pts_sess=session.Session(pts_vnfr['mgmt_ip_address'])
-    tse_sess=session.Session(tse_vnfr['mgmt_ip_address'])
+    pts_sess=sshdriver.ElementDriverSSH(pts_vnfr['mgmt_ip_address'])
+    tse_sess=sshdriver.ElementDriverSSH(tse_vnfr['mgmt_ip_address'])
 
     if not pts_sess.wait_for_api_ready():
         logger.info("PTS API did not become ready")
@@ -51,7 +51,7 @@ def configure(yaml_cfg,logger):
     tse_sess.add_cmd('add config traffic-steering service-locator mac-nsh-locator ' +  cli_pts_name + ' mac ' + mac )
     tse_sess.add_cmd('add config traffic-steering service-function ' + cli_pts_name + ' transport mac-nsh locator ' + cli_pts_name )
     tse_sess.add_cmd('add config traffic-steering service-group-member ' + cli_pts_name + ' service-group pts-group' )
-    tse_sess.commit()
+    tse_sess.configuration_commit()
 
 def main(argv=sys.argv[1:]):
     try:

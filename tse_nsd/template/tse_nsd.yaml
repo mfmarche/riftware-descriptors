@@ -33,7 +33,7 @@ nsd:nsd-catalog:
             -   nsd:name: license_server
             nsd:seq: '1'
             nsd:user-defined-script: set_license_server.py
-        nsd:name: nsd-21
+        nsd:name: tse-pts-scaling
         nsd:vld:
         -   nsd:id: cc4cf
             nsd:name: sub

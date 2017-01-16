@@ -6,8 +6,7 @@ import os
 import subprocess
 import sys
 import time
-from svapiclient  import client 
-from svapisession import session 
+from pysvapi.elementdriver.sshdriver import sshdriver
 import yaml
 import re
 
@@ -26,8 +25,7 @@ def configure(yaml_cfg,logger):
 
     logger.debug("TSE YAML: {}".format(tse_vnfr))
 
-    sess=session.Session(tse_vnfr['mgmt_ip_address'])
-    cli = client.Client(sess)
+    sess=sshdriver.ElementDriverSSH(tse_vnfr['mgmt_ip_address'])
 
     sess.add_cmd('add config traffic-steering service-group group pts-group balancing-algorithm static fail-mode skip')
     sess.add_cmd('add config traffic-steering terminator 1-3 type interface')
@@ -54,7 +52,7 @@ def configure(yaml_cfg,logger):
     if not sess.wait_for_api_ready():
         logger.info("API did not become ready")
         sys.exit(1)
-    sess.commit()
+    sess.configuration_commit()
 
 def main(argv=sys.argv[1:]):
     try:

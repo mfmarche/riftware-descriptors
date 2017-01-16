@@ -6,8 +6,8 @@ import os
 import subprocess
 import sys
 import time
-from svapiclient  import client 
-from svapisession import session 
+from pysvapi.elementdriver.sshdriver import sshdriver
+from pysvapi.svapiclient import client
 import yaml
 import re
 
@@ -27,7 +27,7 @@ def configure_license_servers(yaml_cfg,logger):
                 continue
 
             logger.info("Setting license server on {}:{} license server = {}".format(vnfr['name'],vnfr['mgmt_ip_address'], yaml_cfg['parameter']['license_server']))
-            sess=session.Session(vnfr['mgmt_ip_address'])
+            sess=sshdriver.ElementDriverSSH(vnfr['mgmt_ip_address'])
             cli = client.Client(sess)
             cli.configure_license_server( yaml_cfg['parameter']['license_server'] )
 
