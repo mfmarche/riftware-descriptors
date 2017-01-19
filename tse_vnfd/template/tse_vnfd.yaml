@@ -2,10 +2,13 @@ vnfd:vnfd-catalog:
     vnfd:vnfd:
     -   vnfd:connection-point:
         -   vnfd:name: subscriber-cp
+            vnfd:id:   a 
             vnfd:type: VPORT
         -   vnfd:name: internet-cp
+            vnfd:id:   b
             vnfd:type: VPORT
         -   vnfd:name: service-cp
+            vnfd:id:   c
             vnfd:type: VPORT
         vnfd:description: Sandvine Traffic Steering Engine
         vnfd:id: id_tse_vnf
@@ -18,15 +21,18 @@ vnfd:vnfd-catalog:
         vnfd:vdu:
         -   vnfd:cloud-init-file: cloud_init.cfg
             vnfd:external-interface:
-            -   vnfd:name: subscriber-cp
+            -   vnfd:name: 1-subscriber-cp
+                vnfd:id: a
                 vnfd:virtual-interface:
                     vnfd:type: VIRTIO
                 vnfd:vnfd-connection-point-ref: subscriber-cp 
-            -   vnfd:name: internet-cp
+            -   vnfd:name: 2-internet-cp
+                vnfd:id: b
                 vnfd:virtual-interface:
                     vnfd:type: VIRTIO
                 vnfd:vnfd-connection-point-ref: internet-cp
-            -   vnfd:name: service-cp
+            -   vnfd:name: 3-service-cp
+                vnfd:id: c
                 vnfd:virtual-interface:
                     vnfd:type: VIRTIO
                 vnfd:vnfd-connection-point-ref: service-cp
