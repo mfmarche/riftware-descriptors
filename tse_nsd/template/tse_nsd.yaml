@@ -2,7 +2,7 @@ nsd:nsd-catalog:
     nsd:nsd:
     -   nsd:constituent-vnfd:
         -   nsd:member-vnf-index: '1'
-            nsd:start-by-default: 'false'
+            nsd:start-by-default: 'true'
             nsd:vnfd-id-ref: id_pts_vnf
         -   nsd:member-vnf-index: '2'
             nsd:start-by-default: 'true'
@@ -18,7 +18,7 @@ nsd:nsd-catalog:
             vnfd-member: 
             -   count: 1
                 member-vnf-index-ref: 1
-            min-instance-count: 1
+            min-instance-count: 0
             max-instance-count: 10
             scaling-config-action: 
             -   trigger: "post-scale-out"
@@ -28,11 +28,9 @@ nsd:nsd-catalog:
             user-defined-script: "pts_scale.py"
         nsd:id: 27b66d07-203a-4a84-88f2-e44192caa405
         nsd:initial-config-primitive:
-        -   nsd:name: set license server
-            nsd:parameter:
-            -   nsd:name: license_server
-            nsd:seq: '1'
-            nsd:user-defined-script: set_license_server.py
+        -   nsd:name: configure service function
+            nsd:seq: '2'
+            nsd:user-defined-script: pts_scale.py
         nsd:name: tse-pts-scaling
         nsd:vld:
         -   nsd:id: cc4cf

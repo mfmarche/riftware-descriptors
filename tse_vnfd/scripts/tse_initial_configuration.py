@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 from pysvapi.elementdriver.sshdriver import sshdriver
+from pysvapi.svapiclient import client
 import yaml
 import re
 
@@ -26,6 +27,10 @@ def configure(yaml_cfg,logger):
     logger.debug("TSE YAML: {}".format(tse_vnfr))
 
     sess=sshdriver.ElementDriverSSH(tse_vnfr['mgmt_ip_address'])
+
+    if yaml_cfg['parameter']['license_server'] is not 'None':
+        cli = client.Client(sess)
+        cli.configure_license_server( yaml_cfg['parameter']['license_server'] )
 
     sess.add_cmd('add config traffic-steering service-group group pts-group balancing-algorithm static fail-mode skip')
     sess.add_cmd('add config traffic-steering terminator 1-3 type interface')

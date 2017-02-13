@@ -11,51 +11,103 @@ from pysvapi.svapiclient import client
 import yaml
 import re
 
+vnfd_names={"tse": "Traffic Steering Engine", 
+            "pts": "Policy Traffic Switch"}
 
-def get_vnfr(yaml_cfg,name):
-    for item in yaml_cfg:
-      if name in item['name']:
-          return item
-    return None
+class TSEConfigTool():
 
-def configure(yaml_cfg,logger):
-    pts_name = yaml_cfg['vnfrs_in_group'][0]['name']
-    pts_mgmt = yaml_cfg['vnfrs_in_group'][0]['rw_mgmt_ip']
+    def __init__(self,_logger):
+        self.logger=_logger;
 
-    logger.debug("vnf name = {} mgmt {}".format(pts_name, pts_mgmt))
+    def get_vnfr(self,yaml_cfg,name):
+	for item in yaml_cfg:
+	  if name in item['name']:
+	      return item
+	return None
 
-    tse_vnfr = get_vnfr(yaml_cfg['vnfrs_others'],'Traffic Steering')
-
-    if tse_vnfr is None:
-        logger.info("NO vnfr record found for TSE")
+    def get_vnf_record_from_initial(self,vnfd_name,yaml_cfg,record):
+        self.logger.debug("get {} from initial".format(vnfd_name))
+        for index, vnfr in yaml_cfg['vnfr'].items():
+            self.logger.debug("VNFR {}: {}".format(index, vnfr))
+            if re.search(vnfd_name,vnfr['name']):
+                print("record: {}".format(vnfr))
+                mgmt=vnfr[record]
+                self.logger.debug("{} {} {}".format(vnfd_name,record,mgmt))
+                return mgmt
+        self.logger.info("ERROR: cannot find {}".format(vnfd_name))
         sys.exit(1)
 
-    logger.debug("TSE YAML: {}".format(tse_vnfr))
+    def get_pts_mgmt(self,yaml_cfg):
+        if 'vnfrs_in_group' in yaml_cfg:
+            self.logger.debug("get_pts: from scale")
+            mgmt = yaml_cfg['vnfrs_in_group'][0]['rw_mgmt_ip']
+            self.logger.debug("pts mgmt {}".format(mgmt))
+            return mgmt
+        else:
+            return self.get_vnf_record_from_initial(vnfd_names['pts'],yaml_cfg,'mgmt_ip_address')
 
-    pts_sess=sshdriver.ElementDriverSSH(pts_mgmt)
-    tse_sess=sshdriver.ElementDriverSSH(tse_vnfr['rw_mgmt_ip'])
+    def get_pts_name(self,yaml_cfg):
+        if 'vnfrs_in_group' in yaml_cfg:
+            self.logger.debug("get_pts: from scale")
+            name = yaml_cfg['vnfrs_in_group'][0]['name']
+            self.logger.debug("pts name {}".format(name))
+            return name
+        else:
+            return self.get_vnf_record_from_initial(vnfd_names['pts'],yaml_cfg,'name')
 
-    if not pts_sess.wait_for_api_ready():
-        logger.info("PTS API did not become ready")
-        sys.exit(1)
+    def get_tse_mgmt(self,yaml_cfg):
+        if 'vnfrs_others' in yaml_cfg:
+            self.logger.debug("get_tse: from scale")
+            tse_vnfr = self.get_vnfr(yaml_cfg['vnfrs_others'],vnfd_names['tse'])
+            mgmt = tse_vnfr['rw_mgmt_ip']
+            self.logger.debug("tse {} mgmt {}".format(tse_vnfr['name'],mgmt))
+            return mgmt
+        else:
+            return self.get_vnf_record_from_initial(vnfd_names['tse'],yaml_cfg,'mgmt_ip_address')
 
-    if not tse_sess.wait_for_api_ready():
-        logger.info("TSE API did not become ready")
-        sys.exit(1)
+    def configure(self,yaml_cfg):
+        pts_mgmt=self.get_pts_mgmt(yaml_cfg)
+        tse_mgmt=self.get_tse_mgmt(yaml_cfg)
 
-    pts_cli = client.Client(pts_sess)
-    tse_cli = client.Client(tse_sess)
-    
-    # get the pts mac address
-    mac=pts_cli.get_interface_mac('1-3')
+        if pts_mgmt is None:
+	    self.logger.info("pts mgmt None")
+	    sys.exit(1)
 
-    #need a name without spaces
-    cli_pts_name = '_'.join(pts_name.split())
+        if tse_mgmt is None:
+	    self.logger.info("tse mgmt None")
+	    sys.exit(1)
+         
+	pts_sess=sshdriver.ElementDriverSSH(pts_mgmt)
+	tse_sess=sshdriver.ElementDriverSSH(tse_mgmt)
 
-    tse_sess.add_cmd('add config traffic-steering service-locator mac-nsh-locator ' +  cli_pts_name + ' mac ' + mac )
-    tse_sess.add_cmd('add config traffic-steering service-function ' + cli_pts_name + ' transport mac-nsh locator ' + cli_pts_name )
-    tse_sess.add_cmd('add config traffic-steering service-group-member ' + cli_pts_name + ' service-group pts-group' )
-    tse_sess.configuration_commit()
+	self.logger.info("connecting to pts {}".format(self.get_pts_mgmt(yaml_cfg)))
+	if not pts_sess.wait_for_api_ready():
+	    self.logger.info("PTS API did not become ready")
+	    sys.exit(1)
+	self.logger.info("pts api is ready")
+
+	if not tse_sess.wait_for_api_ready():
+	    logger.info("TSE API did not become ready")
+	    sys.exit(1)
+	self.logger.info("tse api is ready")
+
+	pts_cli = client.Client(pts_sess)
+	tse_cli = client.Client(tse_sess)
+	
+	# get the pts mac address
+	mac=pts_cli.get_interface_mac('1-3')
+
+	cli_pts_name = self.get_pts_name(yaml_cfg).replace(' ','_')
+	self.logger.debug("retrieved pts {} interface 1-3 mac {}".format(cli_pts_name,mac))
+
+	#need a name without spaces
+
+
+	tse_sess.add_cmd('add config traffic-steering service-locator mac-nsh-locator ' +  cli_pts_name + ' mac ' + mac )
+	tse_sess.add_cmd('add config traffic-steering service-function ' + cli_pts_name + ' transport mac-nsh locator ' + cli_pts_name )
+	tse_sess.add_cmd('add config traffic-steering service-group-member ' + cli_pts_name + ' service-group pts-group' )
+	tse_sess.configuration_commit()
+	self.logger.info("configuration complete")
 
 def main(argv=sys.argv[1:]):
     try:
@@ -99,7 +151,8 @@ def main(argv=sys.argv[1:]):
 
     try:
         logger.debug("Input YAML: {}".format(yaml_cfg))
-        configure(yaml_cfg,logger)
+        config_tool=TSEConfigTool(logger)
+        config_tool.configure(yaml_cfg)
 
     except Exception as e:
         logger.exception(e)

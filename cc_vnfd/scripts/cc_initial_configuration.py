@@ -7,7 +7,6 @@ import subprocess
 import sys
 import time
 from pysvapi.elementdriver.sshdriver import sshdriver
-from pysvapi.svapiclient import client
 import yaml
 import re
 
@@ -18,24 +17,30 @@ def get_vnfr(yaml_cfg,name):
     return None
 
 def configure(yaml_cfg,logger):
-    pts_name = yaml_cfg['vnfr_name']
-    pts_vnfr = get_vnfr(yaml_cfg,pts_name)
+    vnf_name = yaml_cfg['vnfr_name']
+    vnfr = get_vnfr(yaml_cfg,vnf_name)
 
-    if pts_vnfr is None:
-        logger.info("NO vnfr record found")
-        sys.exit(1)
+    edriver = sshdriver.ElementDriverSSH(username='ubuntu',host=vnfr['mgmt_ip_address'])
 
-    logger.debug("PTS YAML: {}".format(pts_vnfr))
+    now = int(time.time())
+    maxtime = now + 60
 
-    pts_sess=sshdriver.ElementDriverSSH(pts_vnfr['mgmt_ip_address'])
+    # make sure the consul-deploy.sh script is there.
+    # this currently input via cloud-init.
+    result=edriver.shell_cmd('ls /tmp/consul-deploy.sh')
+    
+    while 'No such file or directory' in result:
+        if time.time() > maxtime:
+            return False
 
-    if not pts_sess.wait_for_api_ready():
-        logger.info("PTS API did not become ready")
-        sys.exit(1)
+        time.sleep(1)
+        result = edriver.shell_cmd('ls /tmp/consul-deploy.sh')
 
-    if yaml_cfg['parameter']['license_server'] is not 'None':
-        pts_cli = client.Client(pts_sess)
-        pts_cli.configure_license_server( yaml_cfg['parameter']['license_server'] )
+    # standup a single instance
+    result = edriver.shell_cmd('sudo /tmp/consul-deploy.sh --bootstrap_expect 1 -consul-server')
+
+    # TODO need to check result here.
+    return True
 
 def main(argv=sys.argv[1:]):
     try:
