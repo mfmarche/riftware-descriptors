@@ -30,7 +30,7 @@ vnfd:vnfd-catalog:
         vnfd:http-endpoint:
         -   port: 9500
             method: "POST"
-            polling_interval_secs: 5
+            polling_interval_secs: 2
             data: "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"show system resources 20\",\"params\":{}}"
             path: "operations/v1"
             https: "true"
