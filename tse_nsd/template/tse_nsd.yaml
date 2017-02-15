@@ -14,7 +14,7 @@ nsd:nsd-catalog:
             nsd:start-by-default: 'true'
             nsd:vnfd-id-ref: server-vnfd
         scaling-group-descriptor: 
-        -   name: "pts scaling"
+        -   name: "scaling_PTS"
             vnfd-member: 
             -   count: 1
                 member-vnf-index-ref: 1
@@ -54,7 +54,7 @@ nsd:nsd-catalog:
         -   nsd:name: configure service function
             nsd:seq: '2'
             nsd:user-defined-script: pts_scale.py
-        nsd:name: tse-pts-scaling
+        nsd:name: TSE-elastic-PTS
         nsd:vld:
         -   nsd:id: cc4cf
             nsd:name: sub

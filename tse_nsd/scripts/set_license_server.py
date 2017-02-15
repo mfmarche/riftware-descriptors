@@ -16,7 +16,7 @@ def configure_license_servers(yaml_cfg,logger):
     for index, vnfr in yaml_cfg['vnfr'].items():
         logger.debug("VNFR {}: {}".format(index, vnfr))
 
-        if re.search('Policy|Traffic',vnfr['name']):
+        if re.search('PTS|TSE',vnfr['name']):
 
             if not yaml_cfg.has_key('parameter'):
                 logger.info("No parameters passed in")

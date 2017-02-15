@@ -10,14 +10,14 @@ vnfd:vnfd-catalog:
         -   vnfd:name: service-cp
             vnfd:id:   c
             vnfd:type: VPORT
-        vnfd:description: Sandvine Traffic Steering Engine
+        vnfd:description: Traffic Steering Engine
         vnfd:id: id_tse_vnf
         vnfd:logo: sandvine_logo.png
         vnfd:mgmt-interface:
             vnfd:vdu-id: iovdu_0
-        vnfd:name: Traffic Steering Engine
+        vnfd:name: TSE
+        vnfd:short-name: TSE
         vnfd:service-function-chain: UNAWARE
-        vnfd:short-name: tse
         vnfd:vdu:
         -   vnfd:cloud-init-file: cloud_init.cfg
             vnfd:external-interface:

@@ -11,8 +11,8 @@ from pysvapi.svapiclient import client
 import yaml
 import re
 
-vnfd_names={"tse": "Traffic Steering Engine", 
-            "pts": "Policy Traffic Switch"}
+vnfd_names={"tse": "TSE", 
+            "pts": "PTS"}
 
 class TSEConfigTool():
 
