@@ -35,7 +35,7 @@ nsd:nsd-catalog:
                 -   
                     ns-monitoring-param-ref: "used-flows"
                     name: "used-flows"
-                    scale-out-threshold: 10
+                    scale-out-threshold: 10000
         monitoring-param:
         -   widget-type: "GAUGE"
             aggregation-type: "AVERAGE"
@@ -57,7 +57,7 @@ nsd:nsd-catalog:
         nsd:name: TSE-elastic-PTS
         nsd:vld:
         -   nsd:id: cc4cf
-            nsd:name: sub
+            nsd:name: subscriber
             nsd:vnfd-connection-point-ref:
             -   nsd:member-vnf-index-ref: '2'
                 nsd:vnfd-connection-point-ref: subscriber-cp
@@ -66,7 +66,7 @@ nsd:nsd-catalog:
                 nsd:vnfd-connection-point-ref: cp1
                 nsd:vnfd-id-ref: server-vnfd
         -   nsd:id: 7b8b0
-            nsd:name: int
+            nsd:name: internet
             nsd:vnfd-connection-point-ref:
             -   nsd:member-vnf-index-ref: '2'
                 nsd:vnfd-connection-point-ref: internet-cp
