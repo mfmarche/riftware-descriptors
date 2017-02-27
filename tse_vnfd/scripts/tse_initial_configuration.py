@@ -26,7 +26,7 @@ def configure(yaml_cfg,logger):
 
     logger.debug("TSE YAML: {}".format(tse_vnfr))
 
-    sess=sshdriver.ElementDriverSSH(tse_vnfr['mgmt_ip_address'],private_key_file=tse_vnfd-key)
+    sess=sshdriver.ElementDriverSSH(tse_vnfr['mgmt_ip_address'],private_key_file='tse_vnfd-key')
 
     #if yaml_cfg['parameter']['license_server'] is not 'None':
     #    cli = client.Client(sess)
