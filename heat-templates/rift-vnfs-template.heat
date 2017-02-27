@@ -16,15 +16,7 @@ parameters:
     label: "rift image"
     description: "rift Image"
     default: rift-4.3.3
-  floating_pool:
-    type: string
-    default: "ext-net"
-    description: floating network pool name
 resources:
-  floating_ip:
-    type: OS::Nova::FloatingIP
-    properties:
-      pool: { get_param: floating_pool }
   rift:
     type: OS::Nova::Server
     properties:
@@ -42,12 +34,6 @@ resources:
             - wget https://git.sandvine.rocks/mmarchetti/rift/raw/master/scripts/install-vnfs.sh -P /tmp/
             - chmod +x /tmp/install-vnfs.sh
             - /tmp/install-vnfs.sh
-
-  association:
-    type: OS::Nova::FloatingIPAssociation
-    properties:
-      floating_ip: { get_resource: floating_ip }
-      server_id: { get_resource: rift }
   mgmt_net:
     properties:
       name:
