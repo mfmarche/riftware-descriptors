@@ -41,7 +41,7 @@ $(VNFD_BUILD_DIR):
 	@echo "" >> $(CLOUD_INIT)
 	@mkdir -p $@/scripts
 	@ssh-keygen -N "" -f $@/scripts/$(TEMPLATE_NAME)-key
-	@echo "ssh-authorized-keys:" >> $(CLOUD_INIT)
+	@echo "ssh_authorized_keys:" >> $(CLOUD_INIT)
 	@echo -n "  - " >> $(CLOUD_INIT)
 	@cat $@/scripts/$(TEMPLATE_NAME)-key.pub >> $(CLOUD_INIT)
 
