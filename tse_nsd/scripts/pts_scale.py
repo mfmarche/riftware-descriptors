@@ -77,8 +77,8 @@ class TSEConfigTool():
 	    self.logger.info("tse mgmt None")
 	    sys.exit(1)
          
-	pts_sess=sshdriver.ElementDriverSSH(pts_mgmt,private_key_file=pts_vnfd-key)
-	tse_sess=sshdriver.ElementDriverSSH(tse_mgmt,private_key_file=tse_vnfd-key)
+        pts_sess=sshdriver.ElementDriverSSH(pts_mgmt,private_key_file=os.path.join(os.environ['RIFT_INSTALL'], "usr/bin/pts_vnfd-key")
+        tse_sess=sshdriver.ElementDriverSSH(tse_mgmt,private_key_file=os.path.join(os.environ['RIFT_INSTALL'], "usr/bin/tse_vnfd-key")
 
 	self.logger.info("connecting to pts {}".format(self.get_pts_mgmt(yaml_cfg)))
 	if not pts_sess.wait_for_api_ready():
