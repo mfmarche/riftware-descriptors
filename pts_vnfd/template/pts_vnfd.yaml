@@ -7,7 +7,7 @@ vnfd:vnfd-catalog:
         vnfd:id: id_pts_vnf
         vnfd:logo: sandvine_logo.png
         vnfd:mgmt-interface:
-          vnfd:vdu-id: iovdu_0
+          vnfd:vdu-id: vdu0
         vnfd:name: PTS
         vnfd:short-name: PTS
         vnfd:service-function-chain: UNAWARE
@@ -17,11 +17,11 @@ vnfd:vnfd-catalog:
                 vnfd:virtual-interface:
                     vnfd:type: VIRTIO
                 vnfd:vnfd-connection-point-ref: service-cp
-            vnfd:id: iovdu_0
+            vnfd:id: vdu0
             vnfd:guest-epa:
                 vnfd:cpu-pinning-policy: ANY
             vnfd:image: PTS_7.40.00-0309_x86_64_el7.pts_tse_dev_integration
-            vnfd:name: vdu-1
+            vnfd:name: vdu0
             vnfd:cloud-init-file: cloud_init.cfg
             vnfd:vm-flavor:
                 vnfd:memory-mb: '5120'

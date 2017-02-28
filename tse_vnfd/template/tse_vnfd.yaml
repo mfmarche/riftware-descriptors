@@ -14,7 +14,7 @@ vnfd:vnfd-catalog:
         vnfd:id: id_tse_vnf
         vnfd:logo: sandvine_logo.png
         vnfd:mgmt-interface:
-            vnfd:vdu-id: iovdu_0
+            vnfd:vdu-id: vdu0
         vnfd:name: TSE
         vnfd:short-name: TSE
         vnfd:service-function-chain: UNAWARE
@@ -38,9 +38,9 @@ vnfd:vnfd-catalog:
                 vnfd:vnfd-connection-point-ref: service-cp
             vnfd:guest-epa:
                 vnfd:cpu-pinning-policy: ANY
-            vnfd:id: iovdu_0
+            vnfd:id: vdu0
             vnfd:image: TSE_1.00.00-0075_x86_64_el7.pts_tse_dev_integration
-            vnfd:name: vdu-1
+            vnfd:name: vdu0
             vnfd:vm-flavor:
                 vnfd:memory-mb: '5120'
                 vnfd:storage-gb: '5'

@@ -4,13 +4,13 @@ vnfd:vnfd-catalog:
         vnfd:id: id_spb_vnf
         vnfd:logo: sandvine_logo.png
         vnfd:mgmt-interface:
-          vnfd:vdu-id: iovdu_0
+          vnfd:vdu-id: vdu0
         vnfd:name: SPB
         vnfd:service-function-chain: UNAWARE
         vnfd:short-name: SPB
         vnfd:vdu:
-        -   vnfd:name: vdu-1
-            vnfd:id:   iovdu_0
+        -   vnfd:name: vdu0
+            vnfd:id:   vdu0
             vnfd:guest-epa:
                 vnfd:cpu-pinning-policy: ANY
             vnfd:image: spb
