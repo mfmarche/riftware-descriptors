@@ -12,7 +12,8 @@ import yaml
 import re
 
 vnfd_names={"tse": "TSE", 
-            "pts": "PTS"}
+            "pts": "PTS",
+            "spb": "SPB"}
 
 class TSEConfigTool():
 
@@ -55,19 +56,21 @@ class TSEConfigTool():
         else:
             return self.get_vnf_record_from_initial(vnfd_names['pts'],yaml_cfg,'name')
 
-    def get_tse_mgmt(self,yaml_cfg):
+    def get_vnf_mgmt(self,yaml_cfg,vnf_name):
         if 'vnfrs_others' in yaml_cfg:
-            self.logger.debug("get_tse: from scale")
-            tse_vnfr = self.get_vnfr(yaml_cfg['vnfrs_others'],vnfd_names['tse'])
-            mgmt = tse_vnfr['rw_mgmt_ip']
-            self.logger.debug("tse {} mgmt {}".format(tse_vnfr['name'],mgmt))
+            vnfr = self.get_vnfr(yaml_cfg['vnfrs_others'],vnfd_names[vnf_name])
+            if vnfr is None:
+                return None
+            mgmt = vnfr['rw_mgmt_ip']
+            self.logger.debug("vnf name {} mgmt {}".format(vnfr['name'],mgmt))
             return mgmt
         else:
-            return self.get_vnf_record_from_initial(vnfd_names['tse'],yaml_cfg,'mgmt_ip_address')
+            return self.get_vnf_record_from_initial(vnfd_names[vnf_name],yaml_cfg,'mgmt_ip_address')
 
     def configure(self,yaml_cfg):
         pts_mgmt=self.get_pts_mgmt(yaml_cfg)
-        tse_mgmt=self.get_tse_mgmt(yaml_cfg)
+        tse_mgmt=self.get_vnf_mgmt(yaml_cfg,'tse')
+        spb_mgmt=self.get_vnf_mgmt(yaml_cfg,'spb')
 
         if pts_mgmt is None:
 	    self.logger.info("pts mgmt None")
@@ -76,7 +79,7 @@ class TSEConfigTool():
         if tse_mgmt is None:
 	    self.logger.info("tse mgmt None")
 	    sys.exit(1)
-         
+
         pts_sess=sshdriver.ElementDriverSSH(pts_mgmt,private_key_file=os.path.join(os.environ['RIFT_INSTALL'], "usr/bin/pts_vnfd-key"))
         tse_sess=sshdriver.ElementDriverSSH(tse_mgmt,private_key_file=os.path.join(os.environ['RIFT_INSTALL'], "usr/bin/tse_vnfd-key"))
 
@@ -102,10 +105,16 @@ class TSEConfigTool():
 
 	#need a name without spaces
 
-
 	tse_sess.add_cmd('add config traffic-steering service-locator mac-nsh-locator ' +  cli_pts_name + ' mac ' + mac )
 	tse_sess.add_cmd('add config traffic-steering service-function ' + cli_pts_name + ' transport mac-nsh locator ' + cli_pts_name )
 	tse_sess.add_cmd('add config traffic-steering service-group-member ' + cli_pts_name + ' service-group pts-group' )
+
+        if spb_mgmt is not None:
+            spb_cmd='set config service spb servers {}'.format(spb_mgmt)
+            tse_sess.add_cmd(spb_cmd)
+            pts_sess.add_cmd(spb_cmd)
+            pts_sess.configuration_commit()
+
 	tse_sess.configuration_commit()
 	self.logger.info("configuration complete")
 

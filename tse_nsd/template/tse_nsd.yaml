@@ -7,6 +7,9 @@ nsd:nsd-catalog:
         -   nsd:member-vnf-index: '2'
             nsd:start-by-default: 'true'
             nsd:vnfd-id-ref: id_tse_vnf
+        -   nsd:member-vnf-index: '3'
+            nsd:start-by-default: 'true'
+            nsd:vnfd-id-ref: id_spb_vnf
         scaling-group-descriptor: 
         -   name: "scaling_PTS"
             vnfd-member: 

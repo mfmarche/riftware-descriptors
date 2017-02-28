@@ -1,4 +1,4 @@
-VNFD_DIRS:= server_vnfd tse_vnfd pts_vnfd cc_vnfd
+VNFD_DIRS:= server_vnfd tse_vnfd pts_vnfd cc_vnfd spb_vnfd
 NSD_DIRS:= tse_nsd cc_nsd
 
 PKG_TAR := $(addprefix build/,$(addsuffix .tar.gz, $(VNFD_DIRS) $(NSD_DIRS) ))
@@ -13,6 +13,7 @@ server_vnfd_IMAGE ?= "Ubuntu 16.04.1 LTS - Xenial Xerus - 64-bit - Cloud Based I
 cc_vnfd_IMAGE     ?= "Ubuntu 16.04.1 LTS - Xenial Xerus - 64-bit - Cloud Based Image"
 tse_vnfd_IMAGE    ?= TSE_1.00.00-0075_x86_64_el7
 pts_vnfd_IMAGE    ?= PTS_7.40.00-0309_x86_64_el7
+spb_vnfd_IMAGE    ?= spb
 LICENSE_SERVER    ?= license.sandvine.rocks
 
 all:  $(VNFD_BUILD_DIR) $(NSD_BUILD_DIR)
